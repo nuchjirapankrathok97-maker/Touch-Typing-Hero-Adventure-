@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ พิมพ์สนุกฉบับการ์ตูน ✨</title>
+    <style>
+        /* นำเข้าฟอนต์การ์ตูนน่ารักๆ จาก Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Itim&family=Mitr:wght@300;400;600&display=swap');
+
+        :root {
+            --primary: #ff7675;
+            --primary-hover: #ff5252;
+            --secondary: #ffeaa7;
+            --bg-grad: linear-gradient(135deg, #a8c0ff, #fbc7d4);
+            --surface: #ffffff;
+            --text: #2d3436;
+            --success: #55efc4;
+            --error: #ff7675;
+        }
+
+        body {
+            font-family: 'Itim', 'Mitr', sans-serif;
+            background: var(--bg-grad);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .game-card {
+            max-width: 750px;
+            width: 100%;
+            background: var(--surface);
+            padding: 30px;
+            border-radius: 30px; /* ขอบมนโค้งสไตล์การ์ตูน */
+            border: 5px solid #fff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ตกแต่งหัวข้อ */
+        h1 { 
+            color: #6c5ce7; 
+            font-size: 42px; 
+            margin: 10px 0 5px 0;
+            text-shadow: 2px 2px 0px #ffeaa7;
+        }
+        .subtitle { 
+            color: #74b9ff; 
+            font-size: 20px; 
+            margin-bottom: 25px; 
+            font-weight: bold;
+        }
+
+        /* กล่องใส่ชื่อ */
+        .login-box {
+            background: #f1f2f6;
+            padding: 25px;
+            border-radius: 20px;
+            border: 3px dashed #81ecec;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        
+        input[type="text"] {
+            font-family: 'Itim', sans-serif;
+            padding: 12px 20px;
+            border: 3px solid #dfe6e9;
+            border-radius: 15px;
+            font-size: 20px;
+            outline: none;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        input[type="text"]:focus { 
+            border-color: #6c5ce7;
+            box-shadow: 0 0 10px rgba(108, 92, 231, 0.2);
+        }
+
+        /* ปุ่มสุดน่ารัก */
+        .btn {
+            font-family: 'Itim', sans-serif;
+            background-color: #6c5ce7;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 15px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 5px 0px #4834d4;
+            transition: all 0.1s;
+            margin-left: 5px;
+        }
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0px #4834d4;
+        }
+        .btn-danger {
+            background-color: var(--error);
+            box-shadow: 0 5px 0px #b2bec3;
+        }
+
+        /* แผงคะแนนสุดฟรุ้งฟริ้ง */
+        .score-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            background: #ffeaa7;
+            padding: 15px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            border: 3px solid #fdcb6e;
+        }
+        .stat-item {
+            font-size: 16px;
+            font-weight: bold;
+            color: #6f5436;
+        }
+        .stat-item span { 
+            display: block; 
+            font-size: 24px; 
+            color: #d63031;
+        }
+
+        /* กระดานคำศัพท์ */
+        .word-panel {
+            font-size: 34px;
+            margin-bottom: 25px;
+            min-height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 20px;
+            border: 3px solid #eee;
+        }
+        .word-item { 
+            padding: 2px 10px; 
+            border-radius: 10px; 
+            color: #b2bec3; 
+        }
+        .word-item.active { 
+            color: #2d3436; 
+            background-color: #74b9ff;
+            color: white;
+            animation: bounce 0.5s infinite alternate;
+        }
+        .word-item.done { 
+            color: #00b894; 
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        /* ช่องพิมพ์หลัก */
+        .typing-box {
+            width: 80%;
+            padding: 15px;
+            font-size: 28px;
+            text-align: center;
+            border: 4px solid #74b9ff;
+            border-radius: 20px;
+            outline: none;
+            margin-bottom: 15px;
+            background: #fff;
+            transition: all 0.2s;
+        }
+        
+        /* สไตล์เมื่อพิมพ์ผิด (จะสั่นและแดง) */
+        .typing-box.error-shake {
+            border-color: var(--error) !important;
+            background-color: #ffeaa7 !important;
+            animation: shake 0.3s ease-in-out;
+        }
+
+        /* แอนิเมชันสำหรับดึ๋งๆ และ สั่น */
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-4px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        .hidden { display: none !important; }
+        .hint-text { color: #636e72; font-size: 16px; margin: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="game-card">
+    <h1>⭐ Typing Hero Cartoon! ⭐</h1>
+    <p class="subtitle">มาฝึกพิมพ์สัมผัสสุดสนุกกันเถอะเจ้าพวกมนุษย์!</p>
+
+    <div id="login-panel">
+        <div class="login-box">
+            <h3 style="margin-top:0; color:#6c5ce7;">กรอกชื่อฮีโร่ของคุณ:</h3>
+            <input type="text" id="player-name" placeholder="ชื่อเท่ๆ ของคุณ..." maxlength="15">
+            <button class="btn" onclick="startGame()">ลุยเลย! 🚀</button>
+        </div>
+    </div>
+
+    <div id="game-panel" class="hidden">
+        <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:15px;">
+            <div id="user-display" style="font-weight:bold; font-size: 20px; color:#6c5ce7;"></div>
+            <button class="btn btn-danger" onclick="changeUser()" style="padding:5px 15px; font-size:14px;">สลับไอดี 🔄</button>
+        </div>
+
+        <div class="score-board">
+            <div class="stat-item">ด่านที่ <span id="lbl-level">1</span></div>
+            <div class="stat-item">ภารกิจ <span id="lbl-name" style="font-size:14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</span></div>
+            <div class="stat-item">ความคืบหน้า <span id="lbl-progress">0/20</span></div>
+            <div class="stat-item">พิมพ์ผิดรวม <span id="lbl-wrong">0</span></div>
+        </div>
+
+        <div class="word-panel" id="box-words"></div>
+
+        <input type="text" id="input-type" class="typing-box" placeholder="พิมพ์ตามคำข้างบนแล้วกด Spacebar" autocomplete="off" disabled>
+        
+        <p class="hint-text">💡 เคล็ดลับ: ถ้าพิมพ์ผิด กล่องจะสั่นเตือน! ต้องแก้ให้ถูกก่อนถึงจะไปคำต่อไปได้นะจ๊ะ</p>
+    </div>
+</div>
+
+<script>
+    // คลังข้อมูล 6 ด่าน ด่านละ 20 คำ (ไล่ระดับ แป้นเหย้า -> คำยาก -> ตัวเลข -> ประโยค)
+    const gameLevels = [
+        {
+            name: "แป้นเหย้าเบบี๋",
+            words: ["ฟฟฟ", "หห", "กก", "ดด", "ว่ฟ", "วา", "สส", "วว", "กดฟห", "วาส", "วาว่", "หกาด", "กกดก", "ฟว่ห่ว", "หววฟ", "ก่าฟ", "ดสกด", "กหฟส", "สหวฟ", "ดาด"]
+        },
+        {
+            name: "คำผสมแป้นเหย้า",
+            words: ["กวดฟ", "กดฟห", "วาส", "วาว่", "ฟาด", "กวาด", "ดาด", "หาว่า", "สาด", "หวด", "ฟาก", "สาก", "ดาก", "หาง", "สาง", "วาก", "ฟาว", "หาว", "สาว", "ดาว"]
+        },
+        {
+            name: "ขึ้นแถวบน (พ ร น ม)",
+            words: ["พาน", "พารา", "มาตรา", "นารา", "นก", "มด", "พรม", "นวม", "พัด", "มัด", "นัด", "พาราม", "มดงาน", "พราน", "นพ", "พร", "มานพ", "พาสนา", "มาดา", "นรา"]
+        },
+        {
+            name: "คำฮิตตะลุยโลก",
+            words: ["การระงับ", "ลายพร้อม", "เครดิต", "หักร้าง", "อ๊วก", "คาถาพัน", "ความต้านทาน", "โชคช่วย", "หาประโยชน์", "อาร์เธอร์", "ประเทศ", "ความสุข", "โรงเรียน", "พัฒนา", "ศึกษา", "ความรัก", "ธรรมชาติ", "ระบบ", "ข้อมูล", "ทำงาน"]
+        },
+        {
+            name: "รหัสลับตัวเลขมหัศจรรย์",
+            words: ["123", "456", "789", "012", "๑๒๓", "๔๕๖", "๗๘๙", "๐๑๒", "10%", "2026", "ปี2569", "ม.1", "ม.3", "ม.6", "99.99", "เบอร์02", "ชั้น5", "ซอย8", "1,000", "50-50"]
+        },
+        {
+            name: "ประโยคสั้นผู้พิชิต",
+            words: ["ฉันชอบ", "เดินเล่น", "ในสวน", "เวลาเย็น", "การพิมพ์", "สัมผัส", "ช่วยให้", "ทำงานไว", "เราเรียน", "รู้สิ่ง", "ใหม่ใหม่", "ทุกๆวัน", "วันนี้", "อากาศดี", "มากเลย", "ขอให้มี", "ความสุข", "กับการ", "ฝึกพิมพ์", "เย้เสร็จแล้ว"]
+        }
+    ];
+
+    let player = "";
+    let lvIdx = 0;
+    let wordIdx = 0;
+    let totalWrong = 0;
+    let currentWords = [];
+
+    const loginPanel = document.getElementById('login-panel');
+    const gamePanel = document.getElementById('game-panel');
+    const playerNameInput = document.getElementById('player-name');
+    const userDisplay = document.getElementById('user-display');
+    const inputType = document.getElementById('input-type');
+    const boxWords = document.getElementById('box-words');
+
+    window.onload = function() {
+        const savedPlayer = localStorage.getItem('cartoon_typing_player');
+        if (savedPlayer) {
+            loadPlayer(savedPlayer);
+        }
+    };
+
+    function startGame() {
+        const name = playerNameInput.value.trim();
+        if (!name) {
+            alert("โธ่... ใส่ชื่อเล่นให้เค้าหน่อยสิขรับ! 🥺");
+            return;
+        }
+        localStorage.setItem('cartoon_typing_player', name);
+        loadPlayer(name);
+    }
+
+    function loadPlayer(name) {
+        player = name;
+        const savedLv = localStorage.getItem(`cartoon_lv_${player}`);
+        lvIdx = savedLv ? parseInt(savedLv) : 0;
+        
+        if(lvIdx >= gameLevels.length) {
+            lvIdx = 0; // เล่นครบแล้วให้วนกลับมาใหม่
+        }
+
+        loginPanel.classList.add('hidden');
+        gamePanel.classList.remove('hidden');
+        userDisplay.innerText = `🦸‍♂️ ฮีโร่: ${player}`;
+        
+        setupLevel();
+    }
+
+    function changeUser() {
+        localStorage.removeItem('cartoon_typing_player');
+        loginPanel.classList.remove('hidden');
+        gamePanel.classList.add('hidden');
+        playerNameInput.value = "";
+    }
+
+    function setupLevel() {
+        wordIdx = 0;
+        currentWords = gameLevels[lvIdx].words;
+
+        document.getElementById('lbl-level').innerText = lvIdx + 1;
+        document.getElementById('lbl-name').innerText = gameLevels[lvIdx].name;
+        document.getElementById('lbl-wrong').innerText = totalWrong;
+        document.getElementById('lbl-progress').innerText = `${wordIdx}/${currentWords.length}`;
+        
+        inputType.value = "";
+        inputType.disabled = false;
+        inputType.focus();
+
+        showWords();
+    }
+
+    function showWords() {
+        boxWords.innerHTML = "";
+        currentWords.forEach((w, i) => {
+            const span = document.createElement('span');
+            span.innerText = w;
+            span.classList.add('word-item');
+            if (i === wordIdx) span.classList.add('active');
+            if (i < wordIdx) span.classList.add('done');
+            boxWords.appendChild(span);
+        });
+    }
+
+    // ดักจับปุ่มเว้นวรรคเพื่อตรวจคำศัพท์
+    inputType.addEventListener('keydown', function(e) {
+        if (e.key === ' ' || e.code === 'Space') {
+            e.preventDefault(); // กันไม่ให้เว้นวรรคจริงในช่องพิมพ์
+            
+            const txt = inputType.value.trim();
+            if (txt === "") return;
+
+            const target = currentWords[wordIdx];
+            const items = boxWords.getElementsByClassName('word-item');
+
+            if (txt === target) {
+                // พิมพ์ถูก -> ผ่านไปคำต่อไปได้!
+                inputType.classList.remove('error-shake');
+                items[wordIdx].className = 'word-item done';
+                
+                wordIdx++;
+                document.getElementById('lbl-progress').innerText = `${wordIdx}/${currentWords.length}`;
+                inputType.value = "";
+
+                if (wordIdx < currentWords.length) {
+                    items[wordIdx].classList.add('active');
+                } else {
+                    nextLevelAction();
+                }
+            } else {
+                // พิมพ์ผิด -> เปิดเอฟเฟกต์สั่น ดึ๋งๆ แดงๆ แล้วให้พิมพ์ใหม่ที่เดิม!
+                totalWrong++;
+                document.getElementById('lbl-wrong').innerText = totalWrong;
+                
+                // ใส่คลาสสำหรับสั่น (เคลียร์อันเก่าก่อนเพื่อให้แอนิเมชันเล่นใหม่ทุกครั้งที่กดผิด)
+                inputType.classList.remove('error-shake');
+                void inputType.offsetWidth; // ทริคบังคับให้บราวเซอร์รีเซ็ตแอนิเมชัน
+                inputType.classList.add('error-shake');
+            }
+        }
+    });
+
+    function nextLevelAction() {
+        inputType.disabled = true;
+        alert(`🎉 ว้าว! คุณผ่านด่านที่ ${lvIdx + 1} เรียบร้อยแล้ว เก่งจังเลยคุณฮีโร่!`);
+        
+        lvIdx++;
+        localStorage.setItem(`cartoon_lv_${player}`, lvIdx);
+
+        if (lvIdx < gameLevels.length) {
+            setupLevel();
+        } else {
+            alert("👑 โอโห้! พิมพ์ครบหมดทุกด่านแล้ว คุณคือปรมาจารย์แห่งการพิมพ์สัมผัสที่แท้จริง! ระบบจะเปิดให้เล่นรอบใหม่ขำๆ นะครับ");
+            lvIdx = 0;
+            localStorage.setItem(`cartoon_lv_${player}`, lvIdx);
+            setupLevel();
+        }
+    }
+</script>
+
+</body>
+</html>
